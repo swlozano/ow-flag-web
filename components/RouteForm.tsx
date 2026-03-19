@@ -43,17 +43,39 @@ export default function RouteForm({ onResult }: Props) {
   const [inclExtra, setInclExtra] = useState(false)
   const [error, setError] = useState('')
 
-  function handleCalcular() {
+  const [loading, setLoading] = useState(false)
+
+  async function handleCalcular() {
     if (!origen.trim() || !destino.trim()) {
       setError('Introduce el origen y el destino del viaje.')
       return
     }
     setError('')
-    const resultado = calcularCoste({
-      origen, destino, cilindrada, precioGas,
-      dias, inclPeaje, inclComida, inclHotel, inclExtra,
-    })
-    onResult(resultado, origen, destino, dias)
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/calc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          origen, destino, cilindrada, precioGas,
+          dias, inclPeaje, inclComida, inclHotel, inclExtra,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (data.error) {
+        setError('Error al calcular la ruta. Intenta de nuevo.')
+        return
+      }
+
+      onResult(data, origen, destino, dias)
+    } catch {
+      setError('Error de conexión. Intenta de nuevo.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const extras = [
@@ -81,12 +103,12 @@ export default function RouteForm({ onResult }: Props) {
           value={origen}
           onChange={setOrigen}
         />
-      <CityAutocomplete
-        placeholder="Ciudad de destino…"
-        value={destino}
-        onChange={setDestino}
-      />
-    </div>
+        <CityAutocomplete
+          placeholder="Ciudad de destino…"
+          value={destino}
+          onChange={setDestino}
+        />
+      </div>
 
       {/* Moto */}
       <div>
@@ -162,14 +184,17 @@ export default function RouteForm({ onResult }: Props) {
 
       <button
         onClick={handleCalcular}
+        disabled={loading}
         style={{
-          width: '100%', height: '52px', background: '#E8580A',
+          width: '100%', height: '52px',
+          background: loading ? '#8A7D72' : '#E8580A',
           border: 'none', borderRadius: '8px', color: 'white',
           fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem',
-          letterSpacing: '2px', cursor: 'pointer',
+          letterSpacing: '2px', cursor: loading ? 'not-allowed' : 'pointer',
+          transition: 'background 0.2s',
         }}
       >
-        CALCULAR COSTE
+        {loading ? 'CALCULANDO...' : 'CALCULAR COSTE'}
       </button>
     </div>
   )

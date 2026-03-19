@@ -10,7 +10,7 @@ interface Props {
 export default function CostBreakdown({ resultado, origen, destino, dias }: Props) {
   const { distancia, litros, costeFuel, costePeaje, costeComida, costeHotel, costeExtra, total, consejo } = resultado
 
-  const fmt = (n: number) => n.toFixed(2).replace('.', ',') + ' €'
+  const fmt = (n: number) => '$' + n.toFixed(2)
 
   const items = [
     { icon: '⛽', label: 'Combustible', desc: `${litros.toFixed(1)} L`, coste: costeFuel, show: true },
