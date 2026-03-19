@@ -173,7 +173,7 @@ export default function RouteForm({ onResult }: Props) {
       {/* Días */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <span style={labelStyle}>Días de viaje por </span>
+          <span style={labelStyle}>Días de viaje por país</span>
           <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#E8580A' }}>{dias}</span>
         </div>
         <input

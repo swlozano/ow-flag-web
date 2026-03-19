@@ -82,7 +82,7 @@ export default function Home() {
           <span style={{ color: '#E8580A', display: 'block' }}>AVENTURA</span>
         </h1>
         <p style={{ color: '#8A7D72', fontSize: '0.9rem', letterSpacing: '0.5px', marginBottom: '2.5rem' }}>
-          Calcula cuánto cuesta viajar por el mundo.
+          Calcula cuánto cuesta viajar por el mundo en moto.
         </p>
         <div className="road" />
       </header>
