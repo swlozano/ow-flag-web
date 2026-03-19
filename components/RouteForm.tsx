@@ -251,7 +251,7 @@ export default function RouteForm({ onResult }: Props) {
           />
         </div>
         <p style={{ fontSize: '0.72rem', color: '#8A7D72', marginTop: '6px' }}>
-          Border fees, SOAT, customs, or any other expense
+          Tasas fronterizas, SOAT, aduanas o cualquier otro gasto
         </p>
       </div>
 

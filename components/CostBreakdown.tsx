@@ -176,16 +176,28 @@ export default function CostBreakdown({
                   <div>
                     <div style={{ fontSize: '0.7rem', color: '#8A7D72', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Días</div>
                     <input
-                      type="number" value={row.dias} min={1} max={30}
-                      onChange={e => updateRow(i, 'dias', parseInt(e.target.value) || 1)}
+                      type="text"
+                      value={row.dias === 0 ? '' : row.dias}
+                      onChange={e => {
+                        const val = e.target.value
+                        if (val === '' || /^\d+$/.test(val)) {
+                          updateRow(i, 'dias', val === '' ? 0 : parseInt(val))
+                        }
+                      }}
                       style={{ ...inputStyle, width: '100%' }}
                     />
                   </div>
                   <div>
                     <div style={{ fontSize: '0.7rem', color: '#8A7D72', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Km/día</div>
                     <input
-                      type="number" value={row.kmPerDay} min={50} max={600} step={25}
-                      onChange={e => updateRow(i, 'kmPerDay', parseInt(e.target.value) || 50)}
+                      type="text"
+                      value={row.kmPerDay === 0 ? '' : row.kmPerDay}
+                      onChange={e => {
+                        const val = e.target.value
+                        if (val === '' || /^\d+$/.test(val)) {
+                          updateRow(i, 'kmPerDay', val === '' ? 0 : parseInt(val))
+                        }
+                      }}
                       style={{ ...inputStyle, width: '100%' }}
                     />
                   </div>
@@ -256,8 +268,9 @@ export default function CostBreakdown({
         </div>
       </div>
 
-      <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#8A7D72' }}>
-        * Estimación orientativa. Los precios reales pueden variar.
+      <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#8A7D72', lineHeight: 1.8 }}>
+        * Estimación orientativa. Los precios reales pueden variar.<br />
+        * Valores en dólares americanos (USD)
       </p>
     </div>
   )
