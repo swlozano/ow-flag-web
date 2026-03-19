@@ -3,9 +3,29 @@
 import { useState } from 'react'
 import { calcularCoste, ResultadoCalculo } from '@/lib/calculos'
 import CityAutocomplete from '@/components/CityAutocomplete'
+import CountrySelector from '@/components/CountrySelector'
+import TripStyleSelector from '@/components/TripStyleSelector'
+
+interface CalcResult {
+  countryData: {
+    code: string
+    name: string
+    fuelPrice: number
+    foodPricePerDay: number
+    hotelPricePerNight: number
+    consumption: number
+  }[]
+}
 
 interface Props {
-  onResult: (resultado: ResultadoCalculo, origen: string, destino: string, dias: number) => void
+  onResult: (resultado: CalcResult, data: {
+    kmPerDay: number
+    dias: number
+    inclComida: boolean
+    inclHotel: boolean
+    inclExtra: boolean
+    extraCosts: number
+  }) => void
 }
 
 const inputStyle: React.CSSProperties = {
@@ -31,7 +51,11 @@ const sectionTitleStyle: React.CSSProperties = {
   letterSpacing: '2px', color: '#E8580A', marginBottom: '1rem',
 }
 
+
+
 export default function RouteForm({ onResult }: Props) {
+  const [countries, setCountries] = useState<{ code: string, name: string, capital: string }[]>([])
+  const [tripStyle, setTripStyle] = useState('estandar')
   const [origen, setOrigen] = useState('')
   const [destino, setDestino] = useState('')
   const [cilindrada, setCilindrada] = useState('600')
@@ -42,12 +66,13 @@ export default function RouteForm({ onResult }: Props) {
   const [inclHotel, setInclHotel] = useState(true)
   const [inclExtra, setInclExtra] = useState(false)
   const [error, setError] = useState('')
-
+  const [extraCosts, setExtraCosts] = useState(0)
+  const [kmPerDay, setKmPerDay] = useState(300)
   const [loading, setLoading] = useState(false)
 
   async function handleCalcular() {
-    if (!origen.trim() || !destino.trim()) {
-      setError('Introduce el origen y el destino del viaje.')
+    if (countries.length < 1) {
+      setError('Select at least 1 countries.')
       return
     }
     setError('')
@@ -58,31 +83,46 @@ export default function RouteForm({ onResult }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          origen, destino, cilindrada, precioGas,
-          dias, inclPeaje, inclComida, inclHotel, inclExtra,
+          countries,
+          cilindrada,
+          dias,
+          inclPeaje,
+          inclComida,
+          inclHotel,
+          inclExtra,
+          tripStyle,
+          extraCosts,
+          kmPerDay,
         }),
       })
 
       const data = await res.json()
-
       if (data.error) {
-        setError('Error al calcular la ruta. Intenta de nuevo.')
+        setError('Error calculating route. Try again.')
         return
       }
 
-      onResult(data, origen, destino, dias)
+
+
+      onResult(data, {
+        kmPerDay,
+        dias,
+        inclComida,
+        inclHotel,
+        inclExtra,
+        extraCosts,
+      })
+
     } catch {
-      setError('Error de conexión. Intenta de nuevo.')
+      setError('Connection error. Try again.')
     } finally {
       setLoading(false)
     }
   }
 
   const extras = [
-    { label: '🛣️ Peajes', sub: 'Autopistas y vías de pago', val: inclPeaje, set: setInclPeaje },
-    { label: '🍽️ Comida', sub: '~35 € por persona/día', val: inclComida, set: setInclComida },
-    { label: '🏨 Hospedaje', sub: '~70 € por noche', val: inclHotel, set: setInclHotel },
-    { label: '🛠️ Imprevistos', sub: '+10% reserva', val: inclExtra, set: setInclExtra },
+    { label: '🍽️ Comida', sub: '', val: inclComida, set: setInclComida },
+    { label: '🏨 Hospedaje', sub: '', val: inclHotel, set: setInclHotel },
   ]
 
   return (
@@ -96,18 +136,17 @@ export default function RouteForm({ onResult }: Props) {
       gap: '1.5rem',
     }}>
 
-      {/* Ruta */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <CityAutocomplete
-          placeholder="Ciudad de origen…"
-          value={origen}
-          onChange={setOrigen}
-        />
-        <CityAutocomplete
-          placeholder="Ciudad de destino…"
-          value={destino}
-          onChange={setDestino}
-        />
+
+      {/* Route */}
+      <div>
+        <p style={sectionTitleStyle}>Route</p>
+        <CountrySelector value={countries} onChange={setCountries} />
+      </div>
+
+      {/* Style */}
+      <div>
+        <p style={sectionTitleStyle}>Estilo de viaje</p>
+        <TripStyleSelector value={tripStyle} onChange={setTripStyle} />
       </div>
 
       {/* Moto */}
@@ -127,27 +166,42 @@ export default function RouteForm({ onResult }: Props) {
               <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#8A7D72', pointerEvents: 'none' }}>▾</span>
             </div>
           </div>
-          <div>
-            <label style={labelStyle}>Precio gasolina (€/L)</label>
-            <input
-              type="number" value={precioGas} step="0.01" min="0.8" max="3"
-              onChange={e => setPrecioGas(parseFloat(e.target.value))}
-              style={inputStyle}
-            />
-          </div>
+
         </div>
       </div>
 
       {/* Días */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <span style={labelStyle}>Días de viaje</span>
+          <span style={labelStyle}>Días de viaje por </span>
           <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#E8580A' }}>{dias}</span>
         </div>
         <input
           type="range" min="1" max="14" step="1" value={dias}
           onChange={e => setDias(parseInt(e.target.value))}
         />
+      </div>
+
+      {/*KM por días*/}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <label style={labelStyle}>Kilómetros a recorrer por día</label>
+          <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#E8580A' }}>
+            {kmPerDay} km
+          </span>
+        </div>
+        <input
+          type="range"
+          min="50"
+          max="600"
+          step="25"
+          value={kmPerDay}
+          onChange={e => setKmPerDay(parseInt(e.target.value))}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+          <span style={{ fontSize: '0.7rem', color: '#8A7D72' }}>50 km</span>
+          <span style={{ fontSize: '0.7rem', color: '#8A7D72' }}>600 km</span>
+        </div>
       </div>
 
       {/* Extras */}
@@ -173,6 +227,32 @@ export default function RouteForm({ onResult }: Props) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/*Add extras*/}
+      <div>
+        <p style={sectionTitleStyle}>Costos Adicionales</p>
+        <div style={{ position: 'relative' }}>
+          <span style={{
+            position: 'absolute', left: '14px', top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#8A7D72', fontSize: '0.95rem',
+          }}>$</span>
+          <input
+            type="number"
+            value={extraCosts || ''}
+            onChange={e => setExtraCosts(parseFloat(e.target.value) || 0)}
+            placeholder="0.00"
+            min="0"
+            style={{
+              ...inputStyle,
+              paddingLeft: '28px',
+            }}
+          />
+        </div>
+        <p style={{ fontSize: '0.72rem', color: '#8A7D72', marginTop: '6px' }}>
+          Border fees, SOAT, customs, or any other expense
+        </p>
       </div>
 
       {error && (

@@ -3,13 +3,43 @@
 import { useState, useEffect } from 'react'
 import RouteForm from '@/components/RouteForm'
 import CostBreakdown from '@/components/CostBreakdown'
-import { ResultadoCalculo } from '@/lib/calculos'
+
+
+interface CountryBreakdown {
+  code: string
+  name: string
+  km: number
+  costFuel: number
+  costFood: number
+  costHotel: number
+  subtotal: number
+}
+
+interface CountryData {
+  code: string
+  name: string
+  fuelPrice: number
+  foodPricePerDay: number
+  hotelPricePerNight: number
+  consumption: number
+}
+
+interface CalcResult {
+  countryData: CountryData[]
+}
 
 export default function Home() {
-  const [resultado, setResultado] = useState<ResultadoCalculo | null>(null)
-  const [origen, setOrigen] = useState('')
-  const [destino, setDestino] = useState('')
+  const [result, setResult] = useState<CalcResult | null>(null)
+  const [formData, setFormData] = useState<{
+    kmPerDay: number
+    dias: number
+    inclComida: boolean
+    inclHotel: boolean
+    inclExtra: boolean
+    extraCosts: number
+  } | null>(null)
   const [dias, setDias] = useState(3)
+
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -19,17 +49,21 @@ export default function Home() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  function handleResult(res: ResultadoCalculo, org: string, dst: string, d: number) {
-    setOrigen(org)
-    setDestino(dst)
-    setDias(d)
-    setResultado(res)
+  function handleResult(res: CalcResult, data: {
+    kmPerDay: number
+    dias: number
+    inclComida: boolean
+    inclHotel: boolean
+    inclExtra: boolean
+    extraCosts: number
+  }) {
+    setResult(res)
+    setFormData(data)
   }
 
   return (
     <main style={{ minHeight: '100vh', background: '#1A1612' }}>
 
-      {/* Header */}
       <header style={{ position: 'relative', textAlign: 'center', padding: '2.5rem 2rem 0', overflow: 'hidden' }}>
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -48,30 +82,32 @@ export default function Home() {
           <span style={{ color: '#E8580A', display: 'block' }}>AVENTURA</span>
         </h1>
         <p style={{ color: '#8A7D72', fontSize: '0.9rem', letterSpacing: '0.5px', marginBottom: '2.5rem' }}>
-          Gasolina · Peajes · Comida · Hospedaje
+          Gasolina · Comida · Hospedaje
         </p>
         <div className="road" />
       </header>
 
-      {/* Main grid */}
       <section style={{
         maxWidth: '1100px',
         margin: '0 auto',
         padding: '2.5rem 1.5rem 4rem',
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 420px',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
         gap: '2rem',
         alignItems: 'start',
       }}>
         <RouteForm onResult={handleResult} />
 
-        <div style={{ position: isMobile ? 'static' : 'sticky', top: '1.5rem' }}>
-          {resultado ? (
+        <div style={{ position: 'sticky', top: '1.5rem' }}>
+          {result && formData ? (
             <CostBreakdown
-              resultado={resultado}
-              origen={origen}
-              destino={destino}
-              dias={dias}
+              countryData={result.countryData}
+              defaultKmPerDay={formData.kmPerDay}
+              defaultDias={formData.dias}
+              inclComida={formData.inclComida}
+              inclHotel={formData.inclHotel}
+              inclExtra={formData.inclExtra}
+              extraCosts={formData.extraCosts}
             />
           ) : (
             <div style={{
@@ -88,14 +124,14 @@ export default function Home() {
               minHeight: '300px',
             }}>
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity={0.2}>
-                <circle cx="40" cy="40" r="38" stroke="#E8580A" strokeWidth="1.5" strokeDasharray="6 4"/>
-                <path d="M18 54c6-12 10-16 22-16s16 4 22 16" stroke="#E8580A" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="24" cy="54" r="6" stroke="#E8580A" strokeWidth="2"/>
-                <circle cx="56" cy="54" r="6" stroke="#E8580A" strokeWidth="2"/>
-                <path d="M34 38l6-9 9 9h5l-4-9" stroke="#E8580A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="40" cy="40" r="38" stroke="#E8580A" strokeWidth="1.5" strokeDasharray="6 4" />
+                <path d="M18 54c6-12 10-16 22-16s16 4 22 16" stroke="#E8580A" strokeWidth="2.5" strokeLinecap="round" />
+                <circle cx="24" cy="54" r="6" stroke="#E8580A" strokeWidth="2" />
+                <circle cx="56" cy="54" r="6" stroke="#E8580A" strokeWidth="2" />
+                <path d="M34 38l6-9 9 9h5l-4-9" stroke="#E8580A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <p style={{ color: '#8A7D72', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                Introduce tu ruta y configura tu moto para obtener una estimación del coste total del viaje.
+                Selecciona los países y configura tu moto para obtener una estimación del coste total del viaje.
               </p>
             </div>
           )}
