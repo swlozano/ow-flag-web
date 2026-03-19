@@ -39,6 +39,12 @@ export default function CostBreakdown({
 
   const diasPerCountry = Math.max(1, Math.floor(defaultDias / countryData.length))
 
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+
+  function toggleCollapse(code: string) {
+    setCollapsed(prev => ({ ...prev, [code]: !prev[code] }))
+  }
+
   const [rows, setRows] = useState<CountryRow[]>(() =>
     countryData.map(c => ({
       ...c,
@@ -72,28 +78,23 @@ export default function CostBreakdown({
   }
 
   const calculated = rows.map(calcRow)
-  const totalKm = calculated.reduce((s, r) => s + r.km, 0)
   const totalFuel = calculated.reduce((s, r) => s + r.costFuel, 0)
   const totalFood = calculated.reduce((s, r) => s + r.costFood, 0)
   const totalHotel = calculated.reduce((s, r) => s + r.costHotel, 0)
   const subtotal = totalFuel + totalFood + totalHotel
   const totalExtra = inclExtra ? subtotal * 0.1 : 0
   const total = subtotal + totalExtra + (extraCosts || 0)
+  const totalDias = rows.reduce((s, r) => s + r.dias, 0)
 
   const fmt = (n: number) => '$' + n.toFixed(2)
 
   const inputStyle: React.CSSProperties = {
-    width: '60px',
-    height: '30px',
-    padding: '0 6px',
+    width: '60px', height: '30px', padding: '0 6px',
     background: 'rgba(255,255,255,0.04)',
     border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '6px',
-    color: '#F5F0E8',
+    borderRadius: '6px', color: '#F5F0E8',
     fontFamily: 'DM Sans, sans-serif',
-    fontSize: '0.82rem',
-    textAlign: 'center',
-    outline: 'none',
+    fontSize: '0.82rem', textAlign: 'center', outline: 'none',
   }
 
   return (
@@ -102,99 +103,124 @@ export default function CostBreakdown({
       border: '1px solid rgba(232,88,10,0.2)',
       borderRadius: '12px',
       padding: '2rem',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1rem',
     }}>
       <p style={{
         fontFamily: 'Bebas Neue, sans-serif',
         fontSize: '1.2rem', letterSpacing: '2px',
-        color: '#E8580A', marginBottom: '1.5rem',
+        color: '#E8580A',
       }}>Resumen del viaje</p>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              {['País', 'Días', 'Km/día', '⛽', '🍽️', '🏨', 'Subtotal'].map(h => (
-                <th key={h} style={{
-                  padding: '8px 10px',
-                  textAlign: h === 'País' ? 'left' : 'right',
-                  color: '#8A7D72',
-                  fontWeight: 500,
-                  fontSize: '0.72rem',
-                  letterSpacing: '1px',
-                  textTransform: 'uppercase',
-                  whiteSpace: 'nowrap',
-                }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => {
-              const calc = calculated[i]
-              return (
-                <tr key={row.code} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '10px', color: '#F5F0E8' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <img
-                        src={`https://flagcdn.com/20x15/${row.code.toLowerCase()}.png`}
-                        alt={row.name}
-                        style={{ width: '18px', height: '13px', borderRadius: '2px' }}
-                      />
-                      {row.name}
-                    </div>
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'right' }}>
-                    <input
-                      type="number"
-                      value={row.dias}
-                      min={1}
-                      max={30}
-                      onChange={e => updateRow(i, 'dias', parseInt(e.target.value) || 1)}
-                      style={inputStyle}
-                    />
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'right' }}>
-                    <input
-                      type="number"
-                      value={row.kmPerDay}
-                      min={50}
-                      max={600}
-                      step={25}
-                      onChange={e => updateRow(i, 'kmPerDay', parseInt(e.target.value) || 50)}
-                      style={inputStyle}
-                    />
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'right', color: '#F5F0E8' }}>{fmt(calc.costFuel)}</td>
-                  <td style={{ padding: '10px', textAlign: 'right', color: '#F5F0E8' }}>{fmt(calc.costFood)}</td>
-                  <td style={{ padding: '10px', textAlign: 'right', color: '#F5F0E8' }}>{fmt(calc.costHotel)}</td>
-                  <td style={{ padding: '10px', textAlign: 'right', color: '#E8580A', fontWeight: 600 }}>{fmt(calc.subtotal)}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-          <tfoot>
-            <tr style={{ borderTop: '1px solid rgba(232,88,10,0.3)', background: 'rgba(232,88,10,0.06)' }}>
-              <td style={{ padding: '12px', color: '#F5F0E8', fontWeight: 600 }}>Total</td>
-              <td style={{ padding: '12px', textAlign: 'right', color: '#8A7D72' }}>
-                {rows.reduce((s, r) => s + r.dias, 0)} días
-              </td>
-              <td style={{ padding: '12px', textAlign: 'right', color: '#8A7D72' }}>{totalKm} km</td>
-              <td style={{ padding: '12px', textAlign: 'right', color: '#F5F0E8' }}>{fmt(totalFuel)}</td>
-              <td style={{ padding: '12px', textAlign: 'right', color: '#F5F0E8' }}>{fmt(totalFood)}</td>
-              <td style={{ padding: '12px', textAlign: 'right', color: '#F5F0E8' }}>{fmt(totalHotel)}</td>
-              <td style={{ padding: '12px', textAlign: 'right', color: '#E8580A', fontWeight: 700, fontSize: '1rem' }}>{fmt(subtotal)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+      {/* Cards por país */}
+      {rows.map((row, i) => {
+        const calc = calculated[i]
+        const isCollapsed = collapsed[row.code]
 
+        return (
+          <div key={row.code} style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '10px',
+            overflow: 'hidden',
+          }}>
+            {/* Header — siempre visible */}
+            <div
+              onClick={() => toggleCollapse(row.code)}
+              style={{
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '1rem 1.25rem',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img
+                  src={`https://flagcdn.com/20x15/${row.code.toLowerCase()}.png`}
+                  alt={row.name}
+                  style={{ width: '20px', height: '15px', borderRadius: '2px' }}
+                />
+                <span style={{ color: '#F5F0E8', fontWeight: 500, fontSize: '0.95rem' }}>
+                  {row.name}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#8A7D72' }}>
+                  {row.dias} días · {row.kmPerDay} km/día
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{
+                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontSize: '1.1rem', color: '#E8580A', letterSpacing: '1px',
+                }}>
+                  {fmt(calc.subtotal)}
+                </span>
+                <span style={{
+                  color: '#8A7D72', fontSize: '0.8rem',
+                  transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)',
+                  transition: 'transform 0.2s',
+                  display: 'inline-block',
+                }}>▾</span>
+              </div>
+            </div>
+
+            {/* Contenido colapsable */}
+            {!isCollapsed && (
+              <div style={{ padding: '0 1.25rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+
+                {/* Inputs días y km */}
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '1fr 1fr',
+                  gap: '0.75rem', margin: '0.75rem 0',
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#8A7D72', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Días</div>
+                    <input
+                      type="number" value={row.dias} min={1} max={30}
+                      onChange={e => updateRow(i, 'dias', parseInt(e.target.value) || 1)}
+                      style={{ ...inputStyle, width: '100%' }}
+                    />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#8A7D72', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Km/día</div>
+                    <input
+                      type="number" value={row.kmPerDay} min={50} max={600} step={25}
+                      onChange={e => updateRow(i, 'kmPerDay', parseInt(e.target.value) || 50)}
+                      style={{ ...inputStyle, width: '100%' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Desglose */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                    <span style={{ color: '#8A7D72' }}>⛽ Combustible ({calc.km} km)</span>
+                    <span style={{ color: '#F5F0E8' }}>{fmt(calc.costFuel)}</span>
+                  </div>
+                  {inclComida && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#8A7D72' }}>🍽️ Comida ({row.dias} días)</span>
+                      <span style={{ color: '#F5F0E8' }}>{fmt(calc.costFood)}</span>
+                    </div>
+                  )}
+                  {inclHotel && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#8A7D72' }}>🏨 Hospedaje ({Math.max(1, row.dias - 1)} noches)</span>
+                      <span style={{ color: '#F5F0E8' }}>{fmt(calc.costHotel)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
+
+      {/* Extras */}
       {inclExtra && (
         <div style={{
-          marginTop: '0.75rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: '0.82rem',
-          padding: '0 12px',
-          color: '#8A7D72',
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: '0.82rem', padding: '0 4px', color: '#8A7D72',
         }}>
           <span>🛠️ Imprevistos (10%)</span>
           <span style={{ color: '#F5F0E8' }}>{fmt(totalExtra)}</span>
@@ -203,33 +229,26 @@ export default function CostBreakdown({
 
       {extraCosts > 0 && (
         <div style={{
-          marginTop: '0.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: '0.82rem',
-          padding: '0 12px',
-          color: '#8A7D72',
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: '0.82rem', padding: '0 4px', color: '#8A7D72',
         }}>
-          <span>➕ Gastos extras</span>
+          <span>➕ Gastos adicionales</span>
           <span style={{ color: '#F5F0E8' }}>{fmt(extraCosts)}</span>
         </div>
       )}
 
+      {/* Total */}
       <div style={{
-        marginTop: '1.25rem',
-        background: '#E8580A',
-        borderRadius: '10px',
+        background: '#E8580A', borderRadius: '10px',
         padding: '1.1rem 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div>
           <div style={{ fontSize: '0.72rem', letterSpacing: '2px', color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' }}>
             Coste Total Estimado
           </div>
           <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>
-            {fmt(total / Math.max(1, rows.reduce((s, r) => s + r.dias, 0)))} / día
+            {fmt(total / Math.max(1, totalDias))} / día · {totalDias} días
           </div>
         </div>
         <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem', color: 'white', letterSpacing: '1px' }}>
@@ -237,7 +256,7 @@ export default function CostBreakdown({
         </div>
       </div>
 
-      <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#8A7D72', marginTop: '1rem' }}>
+      <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#8A7D72' }}>
         * Estimación orientativa. Los precios reales pueden variar.
       </p>
     </div>
