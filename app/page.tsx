@@ -70,7 +70,7 @@ export default function Home() {
           background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,88,10,0.18) 0%, transparent 70%)',
         }} />
         <p style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.8rem', letterSpacing: '6px', color: '#E8580A', marginBottom: '0.5rem' }}>
-          RUTAMOTO
+          Tankwise
         </p>
         <h1 style={{
           fontFamily: 'Bebas Neue, sans-serif',
@@ -78,11 +78,11 @@ export default function Home() {
           lineHeight: 0.92, letterSpacing: '2px',
           color: '#F5F0E8', marginBottom: '0.5rem',
         }}>
-          CALCULA TU
+          El costo de tu
           <span style={{ color: '#E8580A', display: 'block' }}>AVENTURA</span>
         </h1>
         <p style={{ color: '#8A7D72', fontSize: '0.9rem', letterSpacing: '0.5px', marginBottom: '2.5rem' }}>
-          Gasolina · Comida · Hospedaje
+          Calcula cuánto cuesta viajar por el mundo.
         </p>
         <div className="road" />
       </header>
@@ -139,7 +139,7 @@ export default function Home() {
       </section>
 
       <footer style={{ textAlign: 'center', paddingBottom: '2rem', fontSize: '0.75rem', color: '#8A7D72' }}>
-        Hecho con ❤️ para <span style={{ color: '#E8580A' }}>moteros</span> · RutaMoto 2025
+        Hecho con ❤️ para <span style={{ color: '#E8580A' }}>moteros</span> · Tankwise 2026
       </footer>
     </main>
   )

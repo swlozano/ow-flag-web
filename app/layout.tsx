@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'RutaMoto — Calcula tu aventura',
+  title: 'Tankwise — Calcula tu aventura',
   description: 'Calculadora de costes para viajes en moto',
 }
 
