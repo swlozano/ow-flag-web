@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { calcularCoste, ResultadoCalculo } from '@/lib/calculos'
+import CityAutocomplete from '@/components/CityAutocomplete'
 
 interface Props {
   onResult: (resultado: ResultadoCalculo, origen: string, destino: string, dias: number) => void
@@ -74,22 +75,18 @@ export default function RouteForm({ onResult }: Props) {
     }}>
 
       {/* Ruta */}
-      <div>
-        <p style={sectionTitleStyle}>Tu Ruta</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <input
-            type="text" placeholder="Ciudad de origen…"
-            value={origen} onChange={e => setOrigen(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            type="text" placeholder="Ciudad de destino…"
-            value={destino} onChange={e => setDestino(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleCalcular()}
-            style={inputStyle}
-          />
-        </div>
-      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <CityAutocomplete
+          placeholder="Ciudad de origen…"
+          value={origen}
+          onChange={setOrigen}
+        />
+      <CityAutocomplete
+        placeholder="Ciudad de destino…"
+        value={destino}
+        onChange={setDestino}
+      />
+    </div>
 
       {/* Moto */}
       <div>
