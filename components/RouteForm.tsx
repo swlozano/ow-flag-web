@@ -239,15 +239,17 @@ export default function RouteForm({ onResult }: Props) {
             color: '#8A7D72', fontSize: '0.95rem',
           }}>$</span>
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={extraCosts || ''}
-            onChange={e => setExtraCosts(parseFloat(e.target.value) || 0)}
-            placeholder="0.00"
-            min="0"
-            style={{
-              ...inputStyle,
-              paddingLeft: '28px',
+            onChange={e => {
+              const val = e.target.value
+              if (val === '' || (/^\d+$/.test(val) && val.length <= 10)) {
+                setExtraCosts(parseFloat(val) || 0)
+              }
             }}
+            placeholder="0.00"
+            style={{ ...inputStyle, paddingLeft: '28px' }}
           />
         </div>
         <p style={{ fontSize: '0.72rem', color: '#8A7D72', marginTop: '6px' }}>

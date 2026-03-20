@@ -139,7 +139,7 @@ export default function Home() {
       </section>
 
       <footer style={{ textAlign: 'center', paddingBottom: '2rem', fontSize: '0.75rem', color: '#8A7D72' }}>
-        Hecho con ❤️ para <span style={{ color: '#E8580A' }}>moteros</span> · Tankwise 2026
+        Hecho con ❤️ para <span style={{ color: '#E8580A' }}>moteros</span> · RutaMoto · v{process.env.NEXT_PUBLIC_APP_VERSION}
       </footer>
     </main>
   )

@@ -56,7 +56,7 @@ export default function CostBreakdown({
   useEffect(() => {
     setRows(countryData.map(c => ({
       ...c,
-      dias: Math.max(1, Math.floor(defaultDias / countryData.length)),
+      dias: defaultDias,
       kmPerDay: defaultKmPerDay,
     })))
   }, [countryData, defaultKmPerDay, defaultDias])
@@ -179,6 +179,7 @@ export default function CostBreakdown({
                       type="text"
                       value={row.dias === 0 ? '' : row.dias}
                       inputMode="numeric"
+                      maxLength={7}
                       onChange={e => {
                         const val = e.target.value
                         if (val === '' || /^\d+$/.test(val)) {
@@ -194,6 +195,7 @@ export default function CostBreakdown({
                       type="text"
                       value={row.kmPerDay === 0 ? '' : row.kmPerDay}
                       inputMode="numeric"
+                      maxLength={7}
                       onChange={e => {
                         const val = e.target.value
                         if (val === '' || /^\d+$/.test(val)) {
