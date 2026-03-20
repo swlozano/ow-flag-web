@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { calcularCoste, ResultadoCalculo } from '@/lib/calculos'
-import CityAutocomplete from '@/components/CityAutocomplete'
 import CountrySelector from '@/components/CountrySelector'
 import TripStyleSelector from '@/components/TripStyleSelector'
 
@@ -55,24 +54,20 @@ const sectionTitleStyle: React.CSSProperties = {
 
 export default function RouteForm({ onResult }: Props) {
   const [countries, setCountries] = useState<{ code: string, name: string, capital: string }[]>([])
-  const [tripStyle, setTripStyle] = useState('estandar')
-  const [origen, setOrigen] = useState('')
-  const [destino, setDestino] = useState('')
-  const [cilindrada, setCilindrada] = useState('600')
-  const [precioGas, setPrecioGas] = useState(1.72)
-  const [dias, setDias] = useState(3)
-  const [inclPeaje, setInclPeaje] = useState(true)
-  const [inclComida, setInclComida] = useState(true)
-  const [inclHotel, setInclHotel] = useState(true)
-  const [inclExtra, setInclExtra] = useState(false)
+  const [tripStyle, setTripStyle] = useState('economico')
+  const [cilindrada, setCilindrada] = useState('125')
+  const [dias, setDias] = useState(1)
+  const [inclComida, setInclComida] = useState(false)
+  const [inclHotel, setInclHotel] = useState(false)
   const [error, setError] = useState('')
   const [extraCosts, setExtraCosts] = useState(0)
-  const [kmPerDay, setKmPerDay] = useState(300)
+  const [kmPerDay, setKmPerDay] = useState(100)
   const [loading, setLoading] = useState(false)
+  const [inclExtra, setInclExtra] = useState(false)
 
   async function handleCalcular() {
     if (countries.length < 1) {
-      setError('Select at least 1 countries.')
+      setError('Seleccione al menos un país.')
       return
     }
     setError('')
@@ -86,7 +81,6 @@ export default function RouteForm({ onResult }: Props) {
           countries,
           cilindrada,
           dias,
-          inclPeaje,
           inclComida,
           inclHotel,
           inclExtra,
@@ -139,7 +133,7 @@ export default function RouteForm({ onResult }: Props) {
 
       {/* Route */}
       <div>
-        <p style={sectionTitleStyle}>Route</p>
+        <p style={sectionTitleStyle}>Selecciona uno o más países</p>
         <CountrySelector value={countries} onChange={setCountries} />
       </div>
 
@@ -193,14 +187,14 @@ export default function RouteForm({ onResult }: Props) {
         <input
           type="range"
           min="50"
-          max="600"
+          max="1000"
           step="25"
           value={kmPerDay}
           onChange={e => setKmPerDay(parseInt(e.target.value))}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
           <span style={{ fontSize: '0.7rem', color: '#8A7D72' }}>50 km</span>
-          <span style={{ fontSize: '0.7rem', color: '#8A7D72' }}>600 km</span>
+          <span style={{ fontSize: '0.7rem', color: '#8A7D72' }}>1000 km</span>
         </div>
       </div>
 
@@ -231,7 +225,7 @@ export default function RouteForm({ onResult }: Props) {
 
       {/*Add extras*/}
       <div>
-        <p style={sectionTitleStyle}>Costos Adicionales</p>
+        <p style={sectionTitleStyle}>Costos Adicionales (USD)</p>
         <div style={{ position: 'relative' }}>
           <span style={{
             position: 'absolute', left: '14px', top: '50%',
@@ -248,7 +242,7 @@ export default function RouteForm({ onResult }: Props) {
                 setExtraCosts(parseFloat(val) || 0)
               }
             }}
-            placeholder="0.00"
+            placeholder="0.00 USD"
             style={{ ...inputStyle, paddingLeft: '28px' }}
           />
         </div>

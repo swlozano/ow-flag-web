@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { COUNTRIES_SOUTH_AMERICA } from '@/lib/countries'
+import WaitlistModal from '@/components/WaitlistModal'
 
 interface Country {
   code: string
@@ -18,6 +19,7 @@ const INITIAL_COUNT = 6
 
 export default function CountrySelector({ value, onChange }: Props) {
   const [showAll, setShowAll] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   function toggleCountry(country: Country) {
     const exists = value.find(c => c.code === country.code)
@@ -69,41 +71,25 @@ export default function CountrySelector({ value, onChange }: Props) {
 
       {!showAll && (
         <button
-          onClick={() => setShowAll(true)}
+          onClick={() => setShowModal(true)}
           style={{
             alignSelf: 'flex-start',
             background: 'none',
-            border: 'none',
+            border: '1px solid rgba(232,88,10,0.4)',
+            borderRadius: '6px',
             color: '#E8580A',
             fontSize: '0.82rem',
             cursor: 'pointer',
-            padding: '2px 0',
-            textDecoration: 'underline',
-            textUnderlineOffset: '3px',
+            padding: '5px 12px',
           }}
         >
-          Ver más países ({remaining})
+          Ver más países →
         </button>
+        
       )}
 
-      {showAll && (
-        <button
-          onClick={() => setShowAll(false)}
-          style={{
-            alignSelf: 'flex-start',
-            background: 'none',
-            border: 'none',
-            color: '#8A7D72',
-            fontSize: '0.82rem',
-            cursor: 'pointer',
-            padding: '2px 0',
-            textDecoration: 'underline',
-            textUnderlineOffset: '3px',
-          }}
-        >
-          Ver menos
-        </button>
-      )}
+      {showModal && <WaitlistModal onClose={() => setShowModal(false)} />}
+
     </div>
   )
 }
