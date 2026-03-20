@@ -178,6 +178,7 @@ export default function CostBreakdown({
                     <input
                       type="text"
                       value={row.dias === 0 ? '' : row.dias}
+                      inputMode="numeric"
                       onChange={e => {
                         const val = e.target.value
                         if (val === '' || /^\d+$/.test(val)) {
@@ -192,6 +193,7 @@ export default function CostBreakdown({
                     <input
                       type="text"
                       value={row.kmPerDay === 0 ? '' : row.kmPerDay}
+                      inputMode="numeric"
                       onChange={e => {
                         const val = e.target.value
                         if (val === '' || /^\d+$/.test(val)) {

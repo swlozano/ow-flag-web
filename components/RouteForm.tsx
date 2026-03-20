@@ -177,7 +177,7 @@ export default function RouteForm({ onResult }: Props) {
           <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#E8580A' }}>{dias}</span>
         </div>
         <input
-          type="range" min="1" max="14" step="1" value={dias}
+          type="range" min="1" max="90" step="1" value={dias}
           onChange={e => setDias(parseInt(e.target.value))}
         />
       </div>
